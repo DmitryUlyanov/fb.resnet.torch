@@ -62,7 +62,7 @@ function Trainer:train(epoch, dataloader)
 
       optim.sgd(feval, self.params, self.optimState)
 
-      local top1, top5 = self:computeScore(output, sample.target, 1)
+      local top1, top5 = self:computeScore(output, sample.target, sample.names,  1)
       top1Sum = top1Sum + top1
       top5Sum = top5Sum + top5
       lossSum = lossSum + loss
@@ -102,7 +102,7 @@ function Trainer:test(epoch, dataloader)
       local output = self.model:forward(self.input):float()
       local loss = self.criterion:forward(self.model.output, self.target)
 
-      local top1, top5 = self:computeScore(output, sample.target, nCrops)
+      local top1, top5 = self:computeScore(output, sample.target, sample.names, nCrops)
       top1Sum = top1Sum + top1
       top5Sum = top5Sum + top5
       N = N + 1
@@ -115,14 +115,33 @@ function Trainer:test(epoch, dataloader)
    end
    self.model:training()
 
+   if self.opt.testOnly then
+      torch.save(self.opt.predsOut,outs)
+   end
+
    print((' * Finished epoch # %d     top1: %7.3f  top5: %7.3f\n'):format(
       epoch, top1Sum / N, top5Sum / N))
 
    return top1Sum / N, top5Sum / N
 end
 
-function Trainer:computeScore(output, target, nCrops)
-   if nCrops > 1 then
+outs = {}
+function Trainer:computeScore(output, target, names, nCrops)
+   -- if nCrops > 1 then
+   --    -- Sum over crops
+   --    output = output:view(output:size(1) / nCrops, nCrops, output:size(2))
+   --       --:exp()
+   --       :max(2):squeeze(2)
+   -- end
+
+   -- table.insert(outs, {output:float(), names, target})
+   -- -- Coputes the top1 and top5 error rate
+   -- local batchSize = output:size(1)
+
+   -- local _ , predictions = output:float():sort(2, true) -- descending
+
+
+    if nCrops > 1 then
       -- Sum over crops
       output = output:view(output:size(1) / nCrops, nCrops, output:size(2))
          --:exp()
@@ -133,6 +152,8 @@ function Trainer:computeScore(output, target, nCrops)
    local batchSize = output:size(1)
 
    local _ , predictions = output:float():sort(2, true) -- descending
+
+
 
    -- Find which predictions match the target
    local correct = predictions:eq(
@@ -164,7 +185,8 @@ function Trainer:learningRate(epoch)
    -- Training schedule
    local decay = 0
    if self.opt.dataset == 'imagenet' then
-      decay = math.floor((epoch - 1) / 30)
+      decay = epoch >= 5 and 2 or epoch >= 3 and 1 or 0
+      -- decay = epoch >= 8 and 2 or epoch >= 5 and 1 or 0
    elseif self.opt.dataset == 'cifar10' then
       decay = epoch >= 122 and 2 or epoch >= 81 and 1 or 0
    end

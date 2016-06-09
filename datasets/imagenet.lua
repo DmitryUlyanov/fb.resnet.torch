@@ -52,7 +52,7 @@ function ImagenetDataset:_loadImage(path)
 
       local b = torch.ByteTensor(string.len(data))
       ffi.copy(b:data(), data, b:size(1))
-
+      print(path, 'sdssssssssssssssssss')
       input = image.decompress(b, 3, 'float')
    end
 
@@ -80,6 +80,8 @@ local pca = {
 function ImagenetDataset:preprocess()
    if self.split == 'train' then
       return t.Compose{
+         t.Scale(256),
+         -- t.Rotation(25),
          t.RandomSizedCrop(224),
          t.ColorJitter({
             brightness = 0.4,

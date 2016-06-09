@@ -26,7 +26,7 @@ function M.parse(arg)
    ------------- Data options ------------------------
    cmd:option('-nThreads',        2, 'number of data loading threads')
    ------------- Training options --------------------
-   cmd:option('-nEpochs',         0,       'Number of total epochs to run')
+   cmd:option('-nEpochs',         6,       'Number of total epochs to run')
    cmd:option('-epochNumber',     1,       'Manual epoch number (useful on restarts)')
    cmd:option('-batchSize',       32,      'mini-batch size (1 = pure stochastic)')
    cmd:option('-testOnly',        'false', 'Run on validation set only')
@@ -46,6 +46,7 @@ function M.parse(arg)
    cmd:option('-shareGradInput',  'false', 'Share gradInput tensors to reduce memory usage')
    cmd:option('-resetClassifier', 'false', 'Reset the fully connected layer for fine-tuning')
    cmd:option('-nClasses',         0,      'Number of classes in the dataset')
+   cmd:option('-predsOut',         'out.t7',      'Number of classes in the dataset')
    cmd:text()
 
    local opt = cmd:parse(arg or {})
