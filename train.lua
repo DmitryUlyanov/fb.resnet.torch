@@ -134,12 +134,11 @@ function Trainer:computeScore(output, target, names, nCrops)
    --       :max(2):squeeze(2)
    -- end
 
-   -- table.insert(outs, {output:float(), names, target})
+
    -- -- Coputes the top1 and top5 error rate
    -- local batchSize = output:size(1)
 
    -- local _ , predictions = output:float():sort(2, true) -- descending
-
 
     if nCrops > 1 then
       -- Sum over crops
@@ -148,6 +147,8 @@ function Trainer:computeScore(output, target, names, nCrops)
          :sum(2):squeeze(2)
    end
 
+   table.insert(outs, {output:float(), names, target})
+   
    -- Coputes the top1 and top5 error rate
    local batchSize = output:size(1)
 

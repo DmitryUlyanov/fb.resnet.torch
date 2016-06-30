@@ -34,6 +34,7 @@ function ImagenetDataset:get(i)
    return {
       input = image,
       target = class,
+      name = path,
    }
 end
 
@@ -81,7 +82,7 @@ function ImagenetDataset:preprocess()
    if self.split == 'train' then
       return t.Compose{
          t.Scale(256),
-         -- t.Rotation(25),
+         -- t.Rotation(10),
          t.RandomSizedCrop(224),
          t.ColorJitter({
             brightness = 0.4,

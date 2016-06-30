@@ -1,0 +1,1 @@
+th main.lua -retrain checkpoints/model_6.t7 -data ../data/data_split -nGPU 4 -batchSize 64 -nThreads 8 -testOnly true -tenCrop true

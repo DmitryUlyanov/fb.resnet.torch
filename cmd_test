@@ -1,0 +1,2 @@
+th main.lua -retrain net3.t7 -data ../data/data_split_test -nGPU 4 -batchSize 128 -nThreads 8 -testOnly true -tenCrop true -predsOut preds3.t7
+
