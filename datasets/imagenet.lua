@@ -48,6 +48,7 @@ function ImagenetDataset:_loadImage(path)
    if not ok then
       local f = io.open(path, 'r')
       assert(f, 'Error reading: ' .. tostring(path))
+      print(path)
       local data = f:read('*a')
       f:close()
 
@@ -82,6 +83,7 @@ function ImagenetDataset:preprocess()
    if self.split == 'train' then
       return t.Compose{
          t.Scale(256),
+         t.Rotation(360),
          -- t.Rotation(10),
          t.RandomSizedCrop(224),
          t.ColorJitter({
@@ -92,6 +94,8 @@ function ImagenetDataset:preprocess()
          t.Lighting(0.1, pca.eigval, pca.eigvec),
          t.ColorNormalize(meanstd),
          t.HorizontalFlip(0.5),
+         t.VerticalFlip(0.5),
+
       }
    elseif self.split == 'val' then
       local Crop = self.opt.tenCrop and t.TenCrop or t.CenterCrop

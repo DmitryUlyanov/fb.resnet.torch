@@ -171,6 +171,17 @@ function M.HorizontalFlip(prob)
    end
 end
 
+
+
+function M.VerticalFlip(prob)
+   return function(input)
+      if torch.uniform() < prob then
+         input = image.vflip(input)
+      end
+      return input
+   end
+end
+
 function M.Rotation(deg)
    return function(input)
       if deg ~= 0 then

@@ -89,7 +89,7 @@ function Trainer:test(epoch, dataloader)
    local size = dataloader:size()
 
    local nCrops = self.opt.tenCrop and 10 or 1
-   local top1Sum, top5Sum = 0.0, 0.0
+   local top1Sum, top5Sum, lossSum= 0.0, 0.0, 0.0
    local N = 0
 
    self.model:evaluate()
@@ -105,10 +105,11 @@ function Trainer:test(epoch, dataloader)
       local top1, top5 = self:computeScore(output, sample.target, sample.names, nCrops)
       top1Sum = top1Sum + top1
       top5Sum = top5Sum + top5
+      lossSum = lossSum + loss
       N = N + 1
 
-      print((' | Test: [%d][%d/%d]    Time %.3f  Data %.3f  top1 %7.3f (%7.3f)  top5 %7.3f (%7.3f)'):format(
-         epoch, n, size, timer:time().real, dataTime, top1, top1Sum / N, top5, top5Sum / N))
+      print((' | Test: [%d][%d/%d]    Time %.3f  Data %.3f  Loss %7.3f (%7.3f) top1 %7.3f (%7.3f)  top5 %7.3f (%7.3f)'):format(
+         epoch, n, size, timer:time().real, dataTime, loss, lossSum / N, top1, top1Sum / N, top5, top5Sum / N))
 
       timer:reset()
       dataTimer:reset()
@@ -119,8 +120,8 @@ function Trainer:test(epoch, dataloader)
       torch.save(self.opt.predsOut,outs)
    end
 
-   print((' * Finished epoch # %d     top1: %7.3f  top5: %7.3f\n'):format(
-      epoch, top1Sum / N, top5Sum / N))
+   print((' * Finished epoch # %d     loss: %7.3f   top1: %7.3f  top5: %7.3f\n'):format(
+      epoch, lossSum / N, top1Sum / N, top5Sum / N))
 
    return top1Sum / N, top5Sum / N
 end
@@ -186,7 +187,7 @@ function Trainer:learningRate(epoch)
    -- Training schedule
    local decay = 0
    if self.opt.dataset == 'imagenet' then
-      decay = epoch >= 5 and 2 or epoch >= 3 and 1 or 0
+      decay = epoch >= 30 and 2 or epoch >= 15 and 1 or 0
       -- decay = epoch >= 8 and 2 or epoch >= 5 and 1 or 0
    elseif self.opt.dataset == 'cifar10' then
       decay = epoch >= 122 and 2 or epoch >= 81 and 1 or 0
